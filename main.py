@@ -20,7 +20,6 @@ class Game(tk.Frame):
 
 
     def GUI(self):
-        # Create Grid
         self.cells = []
         for r in range(4):
             row = []
@@ -38,7 +37,6 @@ class Game(tk.Frame):
                 row.append(cell_data)
             self.cells.append(row)
 
-        # Create Score Header
         score_frame = tk.Frame(self)
         score_frame.place(relx=0.5, y=45, anchor="center")
         tk.Label(
@@ -51,10 +49,8 @@ class Game(tk.Frame):
 
 
     def begin_game(self):
-        # Create Matrix of Zeroes
         self.matrix = [[0] * 4 for _ in range(4)]
 
-        # fill 2 random cells with 2's
         row = random.randint(0, 3)
         column = random.randint(0, 3)
         self.matrix[row][column] = 2
@@ -80,7 +76,6 @@ class Game(tk.Frame):
         self.score = 0
 
 
-    # Matrix Manipulation Functions
 
     def stack(self):
         new_matrix = [[0] * 4 for _ in range(4)]
