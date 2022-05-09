@@ -23,9 +23,9 @@ class Game(tk.Frame):
 
         self.mainloop()
 
-
+    # # Creates the GUI
+    
     def GUI(self):
-        # Create Grid
         self.cells = []
         for r in range(4):
             row = []
@@ -43,7 +43,7 @@ class Game(tk.Frame):
                 row.append(cell_data)
             self.cells.append(row)
 
-        # Create Score Header
+        # # Score Header
         score_frame = tk.Frame(self)
         score_frame.place(relx=0.5, y=45, anchor="center")
         tk.Label(
@@ -54,12 +54,13 @@ class Game(tk.Frame):
         self.score_label = tk.Label(score_frame, text="0", font=color.SCORE_FONT)
         self.score_label.grid(row=1)
 
-
+    # # Sets up the Game for the Player
+    
     def begin_game(self):
-        # Create Matrix of Zeroes
+        # # Create Matrix of Zeroes
         self.matrix = [[0] * 4 for _ in range(4)]
 
-        # fill 2 random cells with 2's
+        # # Fill 2 random cells with 2's
         row = random.randint(0, 3)
         column = random.randint(0, 3)
         self.matrix[row][column] = 2
@@ -85,7 +86,7 @@ class Game(tk.Frame):
         self.score = 0
 
 
-    # Matrix Manipulation Functions
+    # # Matrix Manipulation Functions
 
     def stack(self):
         new_matrix = [[0] * 4 for _ in range(4)]
@@ -124,7 +125,7 @@ class Game(tk.Frame):
         self.matrix[r][c] = new_matrix
 
 
-    # Add a new 2 or 4 tile randomly to an empty cell
+    # # Add a new tile (2 or 4) randomly to an empty cell
 
     def add_tile(self):
         row = random.randint(0, 3)
@@ -135,7 +136,7 @@ class Game(tk.Frame):
         self.matrix[row][column] = random.choice([2, 4])
 
 
-    # Update GUI to match the matrix
+    # # Update GUI to match the matrix
 
     def update_GUI(self):
         for r in range(4):
@@ -156,7 +157,7 @@ class Game(tk.Frame):
         self.update_idletasks()
 
 
-    # Keyboard Controls
+    # # Keyboard Controls
 
     def left(self, event):
         self.stack()
@@ -164,6 +165,7 @@ class Game(tk.Frame):
         self.stack()
         self.add_tile()
         self.update_GUI()
+        self.game_over()
 
 
     def right(self, event):
@@ -174,6 +176,7 @@ class Game(tk.Frame):
         self.reverse()
         self.add_tile()
         self.update_GUI()
+        self.game_over()
 
 
     def up(self, event):
@@ -184,6 +187,7 @@ class Game(tk.Frame):
         self.transpose()
         self.add_tile()
         self.update_GUI()
+        self.game_over()
 
 
     def down(self, event):
@@ -196,3 +200,51 @@ class Game(tk.Frame):
         self.transpose()
         self.add_tile()
         self.update_GUI()
+        self.game_over()
+
+    # # Check if any moves are possible
+
+    def can_move_horizontal(self):
+        for r in range(4):
+            for c in range(4):
+                if self.matrix[r][c] == self.matrix[r][c + 1]:
+                    return True
+        return False
+
+
+    def can_move_vertical(self):
+        for r in range(3):
+            for c in range(4):
+                if self.matrix[r][c] == self.matrix[r + 1][c]:
+                    return True
+        return False
+
+    # # Check if game is over (Win/Lose)
+
+    def game_over(self):
+        if any(2048 in row for row in self.matrix):
+            game_over_screen = tk.Frame(self.main_grid, borderwidth=2)
+            game_over_screen.place(relx=0.5, rely=0.5, anchor="center")
+            tk.Label(
+                game_over_screen,
+                text="You Win!",
+                bg=color.WINNER_BG,
+                fg=color.GAME_OVER_FONT_COLOR,
+                font=color.GAME_OVER_FONT
+            ).pack()
+        elif not any(0 in row for row in self.matrix) and not self.can_move_horizontal() and not self.can_move_vertical():
+            game_over_screen = tk.Frame(self.main_grid, borderwidth=2)
+            game_over_screen.place(relx=0.5, rely=0.5, anchor="center")
+            tk.Label(
+                game_over_screen,
+                text="Game Over!",
+                bg=color.LOSER_BG,
+                fg=color.GAME_OVER_FONT_COLOR,
+                font=color.GAME_OVER_FONT
+            ).pack()
+
+def main():
+    Game()
+
+if __name__ == "__main__":
+    main()
