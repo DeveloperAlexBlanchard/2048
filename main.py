@@ -16,10 +16,16 @@ class Game(tk.Frame):
         self.GUI()
         self.begin_game()
 
+        self.master.bind("<Left>", self.left)
+        self.master.bind("<Right>", self.right)
+        self.master.bind("<Up>", self.up)
+        self.master.bind("<Down>", self.down)
+
         self.mainloop()
 
 
     def GUI(self):
+        # Create Grid
         self.cells = []
         for r in range(4):
             row = []
@@ -37,6 +43,7 @@ class Game(tk.Frame):
                 row.append(cell_data)
             self.cells.append(row)
 
+        # Create Score Header
         score_frame = tk.Frame(self)
         score_frame.place(relx=0.5, y=45, anchor="center")
         tk.Label(
@@ -49,8 +56,10 @@ class Game(tk.Frame):
 
 
     def begin_game(self):
+        # Create Matrix of Zeroes
         self.matrix = [[0] * 4 for _ in range(4)]
 
+        # fill 2 random cells with 2's
         row = random.randint(0, 3)
         column = random.randint(0, 3)
         self.matrix[row][column] = 2
@@ -76,6 +85,7 @@ class Game(tk.Frame):
         self.score = 0
 
 
+    # Matrix Manipulation Functions
 
     def stack(self):
         new_matrix = [[0] * 4 for _ in range(4)]
@@ -86,3 +96,103 @@ class Game(tk.Frame):
                     new_matrix[r][fill_position] = self.matrix[r][c]
                     fill_position += 1
         self.matrix = new_matrix
+
+
+    def combine(self):
+        for r in range(4):
+            for c in range(3):
+                if self.matrix[r][c] != 0 and self.matrix[r][c] == self.matrix[r][c + 1]:
+                    self.matrix[r][c] *= 2
+                    self.matrix[r][c + 1] = 0
+                    self.score += self.matrix[r][c]
+
+
+    def reverse(self):
+        new_matrix = []
+        for r in range(4):
+            new_matrix.append([])
+            for c in range(4):
+                new_matrix[r].append(self.matrix[r][3 - c])
+        self.matrix = new_matrix
+
+
+    def transpose(self):
+        new_matrix = [[0] * 4 for _ in range(4)]
+        for r in range(4):
+            for c in range(4):
+                new_matrix[r][c] = self.matrix[r][c]
+        self.matrix[r][c] = new_matrix
+
+
+    # Add a new 2 or 4 tile randomly to an empty cell
+
+    def add_tile(self):
+        row = random.randint(0, 3)
+        column = random.randint(0, 3)
+        while (self.matrix[row][column] != 0):
+            row = random.randint(0, 3)
+            column = random.randint(0, 3)
+        self.matrix[row][column] = random.choice([2, 4])
+
+
+    # Update GUI to match the matrix
+
+    def update_GUI(self):
+        for r in range(4):
+            for c in range(4):
+                cell_value = self.matrix[r][c]
+                if cell_value == 0:
+                    self.cells[r][c]["frame"].configure(bg=color.EMPTY_CELL_COLOR)
+                    self.cells[r][c]["number"].configure(bg=color.EMPTY_CELL_COLOR, text="")
+                else:
+                    self.cells[r][c]["frame"].configure(bg=color.COLORS[cell_value])
+                    self.cells[r][c]["number"].configure(
+                        bg=color.COLORS[cell_value],
+                        fg=color.NUM_COLORS[cell_value],
+                        font=color.NUM_FONTS[cell_value],
+                        text=str(cell_value)
+                    )
+        self.score_label.configure(text=self.score)
+        self.update_idletasks()
+
+
+    # Keyboard Controls
+
+    def left(self, event):
+        self.stack()
+        self.combine()
+        self.stack()
+        self.add_tile()
+        self.update_GUI()
+
+
+    def right(self, event):
+        self.reverse()
+        self.stack()
+        self.combine()
+        self.stack()
+        self.reverse()
+        self.add_tile()
+        self.update_GUI()
+
+
+    def up(self, event):
+        self.transpose()
+        self.stack()
+        self.combine()
+        self.stack()
+        self.transpose()
+        self.add_tile()
+        self.update_GUI()
+
+
+    def down(self, event):
+        self.transpose()
+        self.reverse()
+        self.stack()
+        self.combine()
+        self.stack()
+        self.reverse()
+        self.transpose()
+        self.add_tile()
+        self.update_GUI()
